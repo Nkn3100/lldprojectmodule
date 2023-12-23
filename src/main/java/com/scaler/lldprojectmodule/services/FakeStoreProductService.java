@@ -1,5 +1,7 @@
 package com.scaler.lldprojectmodule.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scaler.lldprojectmodule.dtos.FakeStoreProductDTO;
 import com.scaler.lldprojectmodule.models.Category;
 import com.scaler.lldprojectmodule.models.Product;
@@ -44,16 +46,19 @@ public class FakeStoreProductService implements ProductService{
     }
     private String constructPatchRequestBody(FakeStoreProductDTO productDTO,Product product){
         StringBuilder requestBody = new StringBuilder();
+        requestBody.append("{");
         if (product.getTitle() != null && !product.getTitle().equals(productDTO.getTitle()))
-            requestBody.append("{\"title\":\"").append(product.getTitle()).append("\"}");
+
+            requestBody.append("\"\":\"").append(product.getTitle()).append("\"");
         if (product.getPrice() != 0 && product.getPrice() != productDTO.getPrice())
-            requestBody.append("{\"price\":\"").append(product.getPrice()).append("\"}");
+            requestBody.append("\"price\":\"").append(product.getPrice()).append("\"");
         if (product.getCategory() != null && !product.getCategory().getName().equals(productDTO.getCategory()))
-            requestBody.append("{\"category\":\"").append(product.getCategory().getName()).append("\"}");
+            requestBody.append("\"category\":\"").append(product.getCategory().getName()).append("\"");
         if (product.getDescription() != null && !product.getDescription().equals(productDTO.getDescription()))
-            requestBody.append("{\"description\":\"").append(product.getDescription()).append("\"}");
+            requestBody.append("\"description\":\"").append(product.getDescription()).append("\"");
         if (product.getImageUrl() != null && !product.getImageUrl().equals(productDTO.getImage()))
-            requestBody.append("{\"image\":\"").append(product.getImageUrl()).append("\"}");
+            requestBody.append("\"image\":\"").append(product.getImageUrl()).append("\"");
+        requestBody.append("}");
         return requestBody.toString();
 
     }
