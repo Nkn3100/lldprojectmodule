@@ -1,4 +1,4 @@
-package com.scaler.lldprojectmodule.inheritancedemo.joinedtable;
+package com.scaler.lldprojectmodule.inheritancedemo.tableperclass;
 
 import jakarta.persistence.Entity;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Entity
+@Entity(name = "tpc_mentor")
 public class Mentor extends User {
     private double averageRating;
 }

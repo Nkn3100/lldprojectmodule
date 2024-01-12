@@ -1,9 +1,13 @@
 package com.scaler.lldprojectmodule.controllers;
 
 
+import com.scaler.lldprojectmodule.exceptions.ProductNotFoundException;
 import com.scaler.lldprojectmodule.models.Product;
 import com.scaler.lldprojectmodule.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,13 +19,13 @@ public class ProductController {
 
     private ProductService productService;
     @Autowired
-    public ProductController(ProductService productService) {
+    public ProductController(@Qualifier("selfProductService") ProductService productService) {
         this.productService = productService;
     }
 
     @GetMapping("/{id}")
-    public Product getProduct(@PathVariable("id") Long id) {
-        return productService.getProduct(id);
+    public ResponseEntity<Product> getProduct(@PathVariable("id") Long id) throws ProductNotFoundException {
+        return new ResponseEntity<>(productService.getProduct(id), HttpStatus.OK);
     }
 
     @PostMapping
@@ -30,7 +34,12 @@ public class ProductController {
     }
     @PatchMapping("/{id}")
     public String updateProduct(@PathVariable("id") Long id, @RequestBody Product product) {
-        return productService.updateProduct(id, product);
+        try {
+            return productService.updateProduct(id, product);
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+
     }
     @GetMapping
     public List<Product> getAllProducts() {

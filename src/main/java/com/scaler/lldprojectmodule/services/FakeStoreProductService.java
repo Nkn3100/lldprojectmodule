@@ -3,6 +3,7 @@ package com.scaler.lldprojectmodule.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scaler.lldprojectmodule.dtos.FakeStoreProductDTO;
+import com.scaler.lldprojectmodule.exceptions.ProductNotFoundException;
 import com.scaler.lldprojectmodule.models.Category;
 import com.scaler.lldprojectmodule.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import java.util.List;
 
 import static org.apache.tomcat.util.net.SocketEvent.TIMEOUT;
 
-@Service
+@Service("fakeStoreProductService")
 public class FakeStoreProductService implements ProductService{
     private RestTemplate restTemplate;
     @Autowired
@@ -63,11 +64,10 @@ public class FakeStoreProductService implements ProductService{
 
     }
     @Override
-    public Product getProduct(Long id) {
+    public Product getProduct(Long id) throws ProductNotFoundException {
         FakeStoreProductDTO productDTO = restTemplate.getForObject("https://fakestoreapi.com/products/" + id, FakeStoreProductDTO.class);
         if (productDTO == null){
-            System.out.println("Product not found for id: " + id);
-            return null;
+            throw new ProductNotFoundException("Product not found for id: " + id);
         }
         return convertFakeStoreProductDTOToProduct(productDTO);
     }
@@ -83,19 +83,17 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public String updateProduct(Long id, Product product) {
+    public String updateProduct(Long id, Product product) throws Exception {
         FakeStoreProductDTO productDTO = restTemplate.getForObject("https://fakestoreapi.com/products/" + id, FakeStoreProductDTO.class);
         if (productDTO == null){
-            System.out.println("Product not found for id: " + id);
-            return null;
+            throw new ProductNotFoundException("Product not found for id: " + id);
         }
         String requestBody = constructPatchRequestBody(productDTO,product);
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-        String response = restTemplate.patchForObject("https://fakestoreapi.com/products/" + id, requestBody, String.class);
+        String response = restTemplate.patchForObject("https://fakestoreapi.com/products/" + 111, requestBody, String.class);
         if (response != null)
             return response;
-        System.out.println("Product not updated");
-        return null;
+        throw new Exception("Product not updated");
     }
 
     @Override

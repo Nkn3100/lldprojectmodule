@@ -1,4 +1,4 @@
-package repositories;
+package com.scaler.lldprojectmodule.repositories;
 
 import com.scaler.lldprojectmodule.models.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
