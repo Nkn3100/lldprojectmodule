@@ -1,6 +1,7 @@
 package com.scaler.lldprojectmodule.services;
 
 
+import com.scaler.lldprojectmodule.exceptions.CategoryNotFoundException;
 import com.scaler.lldprojectmodule.exceptions.ProductNotFoundException;
 import com.scaler.lldprojectmodule.models.Product;
 
@@ -12,12 +13,12 @@ public interface ProductService {
 
     Product createProduct(Product product);
 
-    String updateProduct(Long id, Product product) throws Exception;
+    Product updateProduct(Long id, Product product) throws Exception;
 
     List<Product> getAllProducts();
 
-    Product deleteProduct(Long id);
+    boolean deleteProduct(Long id) throws ProductNotFoundException;
 
-    Product replaceProduct(Long id, Product product);
+    Product replaceProduct(Long id, Product product) throws ProductNotFoundException, CategoryNotFoundException;
 
 }
