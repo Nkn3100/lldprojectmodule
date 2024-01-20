@@ -6,6 +6,7 @@ import com.scaler.lldprojectmodule.models.Category;
 import com.scaler.lldprojectmodule.models.Product;
 import com.scaler.lldprojectmodule.repositories.CategoryRepository;
 import com.scaler.lldprojectmodule.repositories.ProductRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,11 +36,12 @@ public class SelfProductService implements ProductService{
     }
 
     @Override
+    @Transactional
     public Product createProduct(Product product) {
         Optional<Category> categoryOptional = categoryRepository.findById(product.getCategory().getId());
         if(categoryOptional.isEmpty()){
-            System.out.println("Category doesn't exist. Creating new category.");
-            categoryRepository.save(product.getCategory());
+//            System.out.println("Category doesn't exist. Creating new category.");
+//            categoryRepository.save(product.getCategory());
         }
         return productRepository.save(product);
 
