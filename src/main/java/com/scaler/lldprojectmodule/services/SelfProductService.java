@@ -6,14 +6,11 @@ import com.scaler.lldprojectmodule.models.Category;
 import com.scaler.lldprojectmodule.models.Product;
 import com.scaler.lldprojectmodule.repositories.CategoryRepository;
 import com.scaler.lldprojectmodule.repositories.ProductRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @Service("selfProductService")
 public class SelfProductService implements ProductService{
@@ -36,20 +33,30 @@ public class SelfProductService implements ProductService{
     }
 
     @Override
-    @Transactional
     public Product createProduct(Product product) {
-        Optional<Category> categoryOptional = categoryRepository.findById(product.getCategory().getId());
-        if(categoryOptional.isEmpty()){
-//            System.out.println("Category doesn't exist. Creating new category.");
-//            categoryRepository.save(product.getCategory());
-        }
+        Optional<Category> categoryOptional = categoryRepository.findByName(product.getCategory().getName());
+        System.out.println("category present ? "+categoryOptional.isEmpty());
+        categoryOptional.ifPresent(product::setCategory);
         return productRepository.save(product);
-
     }
 
     @Override
-    public Product updateProduct(Long id, Product product) throws ProductNotFoundException, CategoryNotFoundException {
+    public Product updateProduct(Long id, Product product) throws ProductNotFoundException {
         Optional<Product> productOptional = productRepository.findById(id);
+        Product productFromDB = getProduct(product, productOptional, id);
+        if(product.getCategory()!=null && !product.getCategory().equals(productFromDB.getCategory())){
+            Optional<Category> categoryOptional = categoryRepository.findByName(product.getCategory().getName());
+            if(categoryOptional.isPresent()){
+                productFromDB.setCategory(categoryOptional.get());
+            }else{
+                productFromDB.setCategory(product.getCategory());
+            }
+        }
+        return productRepository.save(productFromDB);
+
+    }
+
+    private static Product getProduct(Product product, Optional<Product> productOptional, Long id) throws ProductNotFoundException {
         if(productOptional.isEmpty()){
             throw new ProductNotFoundException("Product with id: "+id+" doesn't exist.");
         }
@@ -66,16 +73,7 @@ public class SelfProductService implements ProductService{
         if(product.getDescription()!=null && !product.getDescription().equals(productFromDB.getDescription())){
             productFromDB.setDescription(product.getDescription());
         }
-        if(product.getCategory()!=null && !product.getCategory().equals(productFromDB.getCategory())){
-            Optional<Category> categoryOptional1 = categoryRepository.findById(product.getCategory().getId());
-            if(categoryOptional1.isEmpty()){
-                throw new CategoryNotFoundException("Category doesn't exist.");
-            }else{
-                productFromDB.setCategory(categoryOptional1.get());
-            }
-        }
-        return productRepository.save(productFromDB);
-
+        return productFromDB;
     }
 
     @Override
@@ -105,11 +103,12 @@ public class SelfProductService implements ProductService{
         productFromDB.setPrice(product.getPrice());
         productFromDB.setImageUrl(product.getImageUrl());
         productFromDB.setDescription(product.getDescription());
-        Optional<Category> categoryOptional = categoryRepository.findById(product.getCategory().getId());
-        if(categoryOptional.isEmpty()){
-            throw new CategoryNotFoundException("Category doesn't exist.");
-        }else{
+        Optional<Category> categoryOptional = categoryRepository.findByName(product.getCategory().getName());
+        System.out.println("category present ? "+categoryOptional.isEmpty());
+        if(categoryOptional.isPresent()){
             productFromDB.setCategory(categoryOptional.get());
+        }else{
+            productFromDB.setCategory(product.getCategory());
         }
         productFromDB.setCategory(product.getCategory());
         return productRepository.save(productFromDB);
