@@ -2,6 +2,7 @@ package com.scaler.lldprojectmodule.controlleradvices;
 
 import com.scaler.lldprojectmodule.dtos.ArithematicExceptionDTO;
 import com.scaler.lldprojectmodule.dtos.ExceptionDTO;
+import com.scaler.lldprojectmodule.exceptions.CategoryNotFoundException;
 import com.scaler.lldprojectmodule.exceptions.ProductNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -27,6 +28,13 @@ public class ExceptionHandlers {
         ExceptionDTO exceptionDTO = new ExceptionDTO();
         exceptionDTO.setMessage("Something has gone wrong");
         exceptionDTO.setDetail(exception.getMessage());
+        return ResponseEntity.ok(exceptionDTO);
+    }
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<ExceptionDTO> handleCategoryNotFoundException() {
+        ExceptionDTO exceptionDTO = new ExceptionDTO();
+        exceptionDTO.setMessage("Something has gone wrong");
+        exceptionDTO.setDetail("Check the category id. It probably doesn't exist.");
         return ResponseEntity.ok(exceptionDTO);
     }
 }

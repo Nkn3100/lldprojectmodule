@@ -1,6 +1,7 @@
 package com.scaler.lldprojectmodule.controllers;
 
 
+import com.scaler.lldprojectmodule.exceptions.CategoryNotFoundException;
 import com.scaler.lldprojectmodule.exceptions.ProductNotFoundException;
 import com.scaler.lldprojectmodule.models.Product;
 import com.scaler.lldprojectmodule.services.ProductService;
@@ -33,24 +34,20 @@ public class ProductController {
         return productService.createProduct(product);
     }
     @PatchMapping("/{id}")
-    public String updateProduct(@PathVariable("id") Long id, @RequestBody Product product) {
-        try {
-            return productService.updateProduct(id, product);
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-
+    public Product updateProduct(@PathVariable("id") Long id, @RequestBody Product product) throws Exception {
+        return productService.updateProduct(id, product);
     }
     @GetMapping
     public List<Product> getAllProducts() {
         return productService.getAllProducts();
     }
     @DeleteMapping("/{id}")
-    public Product deleteProduct(@PathVariable("id") Long id){
-        return productService.deleteProduct(id);
+    public ResponseEntity<String> deleteProduct(@PathVariable("id") Long id) throws ProductNotFoundException {
+        productService.deleteProduct(id);
+        return new ResponseEntity<>("Product with id: "+id+" deleted successfully.", HttpStatus.OK);
     }
     @PutMapping("/{id}")
-    public Product replaceProduct(@PathVariable("id") Long id, @RequestBody Product product){
+    public Product replaceProduct(@PathVariable("id") Long id, @RequestBody Product product) throws CategoryNotFoundException, ProductNotFoundException {
         return productService.replaceProduct(id, product);
     }
 

@@ -83,14 +83,14 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public String updateProduct(Long id, Product product) throws Exception {
+    public Product updateProduct(Long id, Product product) throws Exception {
         FakeStoreProductDTO productDTO = restTemplate.getForObject("https://fakestoreapi.com/products/" + id, FakeStoreProductDTO.class);
         if (productDTO == null){
             throw new ProductNotFoundException("Product not found for id: " + id);
         }
         String requestBody = constructPatchRequestBody(productDTO,product);
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-        String response = restTemplate.patchForObject("https://fakestoreapi.com/products/" + 111, requestBody, String.class);
+        Product response = restTemplate.patchForObject("https://fakestoreapi.com/products/" + 111, requestBody, Product.class);
         if (response != null)
             return response;
         throw new Exception("Product not updated");
@@ -111,14 +111,14 @@ public class FakeStoreProductService implements ProductService{
     }
 
     @Override
-    public Product deleteProduct(Long id) {
+    public boolean deleteProduct(Long id) {
         FakeStoreProductDTO responseSTO = restTemplate.exchange("https://fakestoreapi.com/products/" + id, HttpMethod.DELETE, null, FakeStoreProductDTO.class).getBody();
         if (responseSTO != null){
             System.out.println("Product deleted");
-            return convertFakeStoreProductDTOToProduct(responseSTO);
+            return true;
         }
         System.out.println("Product not deleted");
-        return null;
+        return false;
     }
 
     @Override
