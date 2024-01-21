@@ -12,6 +12,7 @@ import lombok.Setter;
 public class Product extends BaseModel{
     private String title;
     private Double price;
+    //by default category is eager fetched
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Category category;
     private String description;
