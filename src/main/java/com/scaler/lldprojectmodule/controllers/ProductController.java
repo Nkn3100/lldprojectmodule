@@ -1,6 +1,9 @@
 package com.scaler.lldprojectmodule.controllers;
 
 
+import com.scaler.lldprojectmodule.commons.AuthenticationCommons;
+import com.scaler.lldprojectmodule.dtos.Role;
+import com.scaler.lldprojectmodule.dtos.UserDto;
 import com.scaler.lldprojectmodule.exceptions.CategoryNotFoundException;
 import com.scaler.lldprojectmodule.exceptions.ProductNotFoundException;
 import com.scaler.lldprojectmodule.models.Product;
@@ -19,9 +22,11 @@ import java.util.List;
 public class ProductController {
 
     private ProductService productService;
+    private AuthenticationCommons authenticationCommons;
     @Autowired
-    public ProductController(@Qualifier("selfProductService") ProductService productService) {
+    public ProductController(@Qualifier("selfProductService") ProductService productService, AuthenticationCommons authenticationCommons) {
         this.productService = productService;
+        this.authenticationCommons = authenticationCommons;
     }
 
     @GetMapping("/{id}")
@@ -38,8 +43,23 @@ public class ProductController {
         return productService.updateProduct(id, product);
     }
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public ResponseEntity<List<Product>> getAllProducts(@RequestHeader ("AuthenticationToken") String token) {
+        UserDto userDto = authenticationCommons.validateToken(token);
+        if(userDto == null) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        boolean isAdmin = false;
+        for(Role role : userDto.getRoles()) {
+            if(role.getName().equals("ADMIN")) {
+                isAdmin = true;
+                break;
+            }
+        }
+        if(!isAdmin) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        List<Product> products = productService.getAllProducts();
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable("id") Long id) throws ProductNotFoundException {
