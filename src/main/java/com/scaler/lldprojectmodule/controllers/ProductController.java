@@ -44,20 +44,20 @@ public class ProductController {
     }
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts(@RequestHeader ("AuthenticationToken") String token) {
-        UserDto userDto = authenticationCommons.validateToken(token);
-        if(userDto == null) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-        boolean isAdmin = false;
-        for(Role role : userDto.getRoles()) {
-            if(role.getName().equals("ADMIN")) {
-                isAdmin = true;
-                break;
-            }
-        }
-        if(!isAdmin) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+//        UserDto userDto = authenticationCommons.validateToken(token);
+//        if(userDto == null) {
+//            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+//        }
+//        boolean isAdmin = false;
+//        for(Role role : userDto.getRoles()) {
+//            if(role.getName().equals("ADMIN")) {
+//                isAdmin = true;
+//                break;
+//            }
+//        }
+//        if(!isAdmin) {
+//            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+//        }
         List<Product> products = productService.getAllProducts();
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
