@@ -7,6 +7,7 @@ import com.scaler.lldprojectmodule.exceptions.ProductNotFoundException;
 import com.scaler.lldprojectmodule.models.Category;
 import com.scaler.lldprojectmodule.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -20,9 +21,11 @@ import static org.apache.tomcat.util.net.SocketEvent.TIMEOUT;
 @Service("fakeStoreProductService")
 public class FakeStoreProductService implements ProductService{
     private RestTemplate restTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
     @Autowired
-    public FakeStoreProductService(RestTemplate restTemplate) {
+    public FakeStoreProductService(RestTemplate restTemplate, RedisTemplate<String, Object> redisTemplate) {
         this.restTemplate = restTemplate;
+        this.redisTemplate = redisTemplate;
     }
     private Product convertFakeStoreProductDTOToProduct(FakeStoreProductDTO productDTO) {
         Product product = new Product();
@@ -65,11 +68,17 @@ public class FakeStoreProductService implements ProductService{
     }
     @Override
     public Product getProduct(Long id) throws ProductNotFoundException {
+        Product p = (Product) redisTemplate.opsForHash().get("PRODUCTS", "PRODUCT_" + id);
+        if(p != null) {
+            return p;
+        }
         FakeStoreProductDTO productDTO = restTemplate.getForObject("https://fakestoreapi.com/products/" + id, FakeStoreProductDTO.class);
         if (productDTO == null){
             throw new ProductNotFoundException("Product not found for id: " + id);
         }
-        return convertFakeStoreProductDTOToProduct(productDTO);
+        Product product = convertFakeStoreProductDTOToProduct(productDTO);
+        redisTemplate.opsForHash().put("PRODUCTS", "PRODUCT_" + id, product);
+        return product;
     }
 
     @Override
